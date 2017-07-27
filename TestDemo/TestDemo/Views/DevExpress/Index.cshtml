@@ -1,0 +1,48 @@
+﻿@model TestDemo.ViewModels.DashboardViewModel
+
+@{
+    ViewBag.Title = "Single cell editing";
+}
+
+<p>To modify a cell, click on it and enter a value. </p>
+<p>   After you leave the cell, a callback will be sent to the server and the data source will be updated with the new value.</p>
+
+<script>
+    function onBatchEditEndEditing(s, e) {
+        var cellInfo = s.batchEditApi.GetEditCellInfo();
+        setTimeout(function() {
+            if (s.batchEditApi.HasChanges(cellInfo.rowVisibleIndex, cellInfo.column.index))
+                UpdateEdit(s, createObject(s, s.GetRowKey(e.visibleIndex), e.rowValues), cellInfo);
+        }, 0);
+    }
+
+    function UpdateEdit(grid, object, cellInfo) {
+        $.ajax({
+            url: '@Url.Action("UpdateData")',
+            method: 'POST',
+            data: { data: JSON.stringify(object) },
+            success: function(result) {
+                if (result != "OK") {
+                    alert(result);
+                    grid.batchEditApi.StartEdit(cellInfo.rowVisibleIndex, cellInfo.column.index);
+                }
+            }
+        });
+    }
+
+    function createObject(grid, key, values) {
+        var object = {};
+        object["ID"] = key;
+        Object.keys(values).map(function(k) {
+            object[grid.GetColumn(k).fieldName] = values[k].value;
+        });
+
+        return object;
+    }
+</script>
+
+
+@Html.Action("GridViewPartial")
+
+
+

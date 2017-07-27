@@ -1,0 +1,53 @@
+﻿@model TestDemo.ViewModels.ToggleVm
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Index</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="~/Scripts/Site/dashBoardPopUp.js"></script>
+</head>
+<body>
+@using (Html.BeginForm("ajax", "Toggle", FormMethod.Post))
+{
+    <div>
+        @Html.CheckBoxFor(x => x.Good) @Html.LabelFor(x => x.Good)
+    </div>
+    <div>
+        @Html.CheckBoxFor(x => x.Bad) @Html.LabelFor(x => x.Bad)
+    </div>
+    <div>
+        @Html.CheckBoxFor(x => x.SetTrue) @Html.LabelFor(x => x.SetTrue)
+    </div>
+    <div>
+        @Html.CheckBoxFor(x => x.SetTrueThenFalse) @Html.LabelFor(x => x.SetTrueThenFalse)
+    </div>
+    <div>
+        @Html.CheckBoxFor(x => x.SetFalse) @Html.LabelFor(x => x.SetFalse)
+    </div>
+    <div>
+        @Html.CheckBoxFor(x => x.SetFalseThenTrue) @Html.LabelFor(x => x.SetFalseThenTrue)
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        normal Submit
+    </button>
+}
+
+<button type="submit" id="btnsubmit" class="btn btn-primary"
+        onclick="SaveButtonOnclick()">
+    Ajax
+</button>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+﻿@using System.Dynamic
+@using System.Reflection
+@using Microsoft.Ajax.Utilities
+@using TestDemo.ViewModels
+@model TestDemo.ViewModels.DashboardViewModel
+
+@functions {
+    public string StringMethodName { get; set; }
+}
+
+@{
+    ViewBag.Title = "title";
+
+}
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+
+<h2>Manual Grid</h2>
+
+<table id = "mainTable">
+
+    <tbody>
+    <tr>
+        @{
+            <th>RowKey</th>
+            <th>Section</th>
+            <th>Line Point of Contact</th>
+            <th>Area</th>
+            
+            foreach (DashboardViewModel.TaskHeaderVM header in Model.TaskHeaders)
+            {
+                <th id=@header.ID>
+                    @($"{header.Decription}Commit")
+                </th>
+                <th id=@header.ID>
+                    @($"{header.Decription}Need")
+                </th>
+                <th id=@header.ID>
+                    @($"{header.Decription}IsAcculized")
+                </th>
+            }
+        }
+    </tr>
+    @{
+        foreach (DashboardViewModel.AreaRowVM row in Model.Rows)
+        {
+            <tr id=@row>
+                <td> @row.RowKey</td>
+                <td> @row.Section</td>
+                <td> @row.LinePointOfContact</td>
+                <td> @row.Area</td>
+
+                @foreach (DashboardViewModel.TaskHeaderVM header in Model.TaskHeaders)
+                {
+                    DateTime commit = (DateTime) ((IDictionary<string, object>) row.DynamicTask)[header.Decription + "Commit"];
+                    DateTime need = (DateTime) ((IDictionary<string, object>) row.DynamicTask)[header.Decription + "Need"];
+                    bool isAcculized = (bool) ((IDictionary<string, object>) row.DynamicTask)[header.Decription + "IsAcculized"];
+                    <td name="@($"{row.AreaID}-{header.ID}")" class="ClickAble">@commit.ToShortDateString()</td>
+                    <td name="@($"{row.AreaID}-{header.ID}")" class="ClickAble">@need.ToShortDateString()</td>
+                    <td name="@($"{row.AreaID}-{header.ID}")" class="ClickAble">@isAcculized</td>
+                }
+            </tr>
+
+
+        }
+
+            
+                
+
+     
+    }
+
+    </tbody>
+</table>
+<script>
+    $(document).ready(function ()
+    {
+
+        $('.ClickAble').on('click',
+            function(e) {
+                e.preventDefault();
+                console.log(this);
+                console.log(this.attr.name);
+                console.log(this.attr.class);
+                alert(this.attr.name);
+            }
+        );
+    }
+    );
+</script>

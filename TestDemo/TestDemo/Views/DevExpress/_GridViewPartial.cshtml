@@ -1,0 +1,179 @@
+@using System.Web.UI.WebControls
+@using TestDemo.ViewModels
+@model List<TestDemo.ViewModels.DashboardViewModel.AreaRowVM>
+
+@Html.DevExpress().GetStyleSheets(
+    new StyleSheet { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+    new StyleSheet { ExtensionSuite = ExtensionSuite.Editors },
+    new StyleSheet { ExtensionSuite = ExtensionSuite.GridView }
+    )
+@Html.DevExpress().GetScripts(
+    new Script { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+    new Script { ExtensionSuite = ExtensionSuite.Editors },
+    new Script { ExtensionSuite = ExtensionSuite.GridView }
+    )
+
+@{
+    GridViewExtension grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "GridView";
+        settings.CallbackRouteValues = new {Controller = "DevExpress", Action = "GridViewPartial"};
+        settings.SettingsBehavior.AllowCellMerge = true;
+        settings.SettingsEditing.UpdateRowRouteValues = new {Controller = "DevExpress", Action = "GridViewPartialUpdate"};
+        settings.SettingsEditing.Mode = GridViewEditingMode.EditFormAndDisplayRow;
+        settings.SettingsBehavior.ConfirmDelete = true;
+
+        settings.CommandColumn.Visible = true;
+        settings.CommandColumn.ShowEditButton = true;
+
+        settings.KeyFieldName = "Rows";
+
+        settings.SettingsPager.Visible = true;
+        settings.Settings.ShowGroupPanel = true;
+        settings.Settings.ShowFilterRow = true;
+        settings.SettingsBehavior.AllowSelectByRowClick = true;
+
+        settings.SettingsAdaptivity.AdaptivityMode = GridViewAdaptivityMode.Off;
+        settings.SettingsAdaptivity.AdaptiveColumnPosition = GridViewAdaptiveColumnPosition.Right;
+        settings.SettingsAdaptivity.AdaptiveDetailColumnCount = 1;
+        settings.SettingsAdaptivity.AllowOnlyOneAdaptiveDetailExpanded = false;
+        settings.SettingsAdaptivity.HideDataCellsAtWindowInnerWidth = 0;
+        settings.KeyFieldName = "RowKey";
+        settings.Columns.Add("AreaID", "aID");
+
+        settings.Columns.Add("RowKey", "RowKey");
+        settings.Columns.Add(section =>
+        {
+            section.FieldName = "Section";
+            section.Width = 5;
+            section.Caption = "Section";
+
+        });
+        settings.Columns.Add("LinePointOfContact", "Line Point of Contact");
+        settings.Columns.Add(area =>
+        {
+            area.FieldName = "Area";
+            area.Caption = "Area";
+            area.EditCellStyle.Wrap = DefaultBoolean.False;
+        });
+
+        //editing single cell start
+        settings.CellEditorInitialize = (s, e) => {
+            ASPxEdit editor = (ASPxEdit)e.Editor;
+            editor.ValidationSettings.Display = Display.Dynamic;
+        };
+
+        settings.ClientSideEvents.BatchEditEndEditing = "onBatchEditEndEditing";
+
+        settings.Styles.BatchEditModifiedCell.BackColor = System.Drawing.Color.White;
+        settings.SettingsEditing.Mode = GridViewEditingMode.Batch;
+        settings.SettingsEditing.BatchEditSettings.ShowConfirmOnLosingChanges = false;
+        settings.SettingsEditing.BatchEditSettings.StartEditAction = GridViewBatchStartEditAction.Click;
+        settings.Settings.ShowStatusBar = GridViewStatusBarMode.Hidden;
+        //editing single cell end
+
+
+        settings.Columns.Add(column =>
+        {
+            column.Caption = "Task";
+            // "FieldName" contains a unique value that does not refer to any field in the GridView's data model.  
+            column.FieldName = "Task1AreaID";
+            // The column contains string values. 
+            column.UnboundType = DevExpress.Data.UnboundColumnType.String;
+            // An unbound expression. 
+            column.UnboundExpression = "DynamicTask.Task1AreaID";
+
+        });
+
+        foreach (DashboardViewModel.TaskHeaderVM field in (List<DashboardViewModel.TaskHeaderVM>) ViewData["Headers"])
+        {
+            settings.Columns.AddBand(band =>
+            {
+                band.Caption = field.Decription;
+                band.HeaderStyle.HorizontalAlign = HorizontalAlign.Center;
+                band.Columns.Add(column =>
+                {
+                    column.Caption = "Commit";
+                    // "FieldName" contains a unique value that does not refer to any field in the GridView's data model.  
+                    column.FieldName = "Commit" + field.Decription;
+                    // The column contains string values. 
+                    column.UnboundType = DevExpress.Data.UnboundColumnType.DateTime;
+                    // An unbound expression. 
+                    column.UnboundExpression = "DynamicTask." + field.Decription + "Commit";
+                    column.PropertiesEdit.DisplayFormatString = "d";
+                    column.Name = field.ID.ToString();
+                    column.EditCellStyle.CssClass = $"test{field.ID}";
+
+
+                });
+                band.Columns.Add(column =>
+                {
+                    column.Caption = "Need";
+                    // "FieldName" contains a unique value that does not refer to any field in the GridView's data model.  
+                    column.FieldName = "Need" + field.Decription;
+                    // The column contains string values. 
+                    column.UnboundType = DevExpress.Data.UnboundColumnType.DateTime;
+                    // An unbound expression. 
+                    column.UnboundExpression = "DynamicTask." + field.Decription + "Need";
+                    column.PropertiesEdit.DisplayFormatString = "d";
+
+                    column.EditCellStyle.Wrap = DefaultBoolean.False;
+                });
+
+                band.Columns.Add(column =>
+                {
+
+                    column.SetDataItemTemplateContent(cell =>
+                    {
+
+                        ViewContext.Writer.Write($"<div id= {cell.Text} class = 'areaTask commit'> {cell.Text.Split(' ')[0]} </div>");
+                    });
+
+                    column.Caption = "Task";
+                    // "FieldName" contains a unique value that does not refer to any field in the GridView's data model.  
+                    column.FieldName = $"{field.Decription}AreaIDTaskID";
+                    // The column contains string values. 
+                    column.UnboundType = DevExpress.Data.UnboundColumnType.String;
+                    // An unbound expression. 
+                    column.UnboundExpression = $"DynamicTask.{field.Decription}AreaIDTaskID";
+
+
+
+                });
+
+                band.Columns.Add(column =>
+                {
+                    column.Caption = "is Acculized";
+                    // "FieldName" contains a unique value that does not refer to any field in the GridView's data model.  
+                    column.FieldName = "isAcculized" + field.Decription;
+                    // The column contains string values. 
+                    column.UnboundType = DevExpress.Data.UnboundColumnType.Boolean;
+                    // An unbound expression. 
+                    column.UnboundExpression = "DynamicTask." + field.Decription + "IsAcculized";
+
+                    column.Visible = false;
+
+                });
+                settings.FormatConditions.AddHighlight($"Commit{field.Decription}", $"isAcculized{field.Decription}",
+                    GridConditionHighlightFormat.GreenFillWithDarkGreenText);
+                settings.FormatConditions.AddHighlight($"Need{field.Decription}", $"isAcculized{field.Decription}",
+                    GridConditionHighlightFormat.GreenFillWithDarkGreenText);
+                settings.FormatConditions.AddHighlight($"Task{field.Decription}", $"isAcculized{field.Decription}",
+                    GridConditionHighlightFormat.GreenFillWithDarkGreenText);
+
+                settings.FormatConditions.AddHighlight($"Task{field.Decription}", $"isAcculized{field.Decription}",
+                    GridConditionHighlightFormat.GreenFillWithDarkGreenText);
+
+
+            });
+        }
+
+    });
+
+
+    if (ViewData["EditError"] != null)
+    {
+        grid.SetEditErrorText((string)ViewData["EditError"]);
+    }
+}
+@grid.Bind(Model).GetHtml()
